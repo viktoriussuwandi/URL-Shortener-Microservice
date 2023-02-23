@@ -21,21 +21,35 @@ app.get('/', function(req, res) {
 /*-----------------------------------------------------------------------------------------*/
 /*---------------------------------------MY CODE-------------------------------------------*/
 /*-----------------------------------------------------------------------------------------*/
+//1.Create function for File data.json
+function dataManagement(action, input) {
+  if (action == 'save data' && input) {
+      //1a.Convert JavaScript object into JSON string
+      const dict_json = JSON.stringify(input);
+      //1b.Save data to file
+      fs.writeFileSync("./public/data.json", dict_json);
+      console.log(dict_json);
+    return dict_json
+  } else if (action == 'load data' && input == null) {
+    data = {};
+    return data;
+  } else { return null; } 
+};
 
 app.post('/api/shorturl', (req,res) => {
-  //1.Create variable needs
+  //2.Create variable needs
   let input = '', domain = '', param = '', short = 0;
   
-  //2.Post url from user input
+  //2a.Post url from user input
   input = req.body.url;
   if (input === null || input === '') { 
     return res.json({ error: 'invalid url' }); 
   }
   
-  //2a.matches a string with regular expression => return array
+  //2b.matches a string with regular expression => return array
   //   url should contains : http:// or https://
   domain = input.match(/^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/igm);
-  //2b.search a string with regular expression, and replace the string -> delete https://
+  //2c.search a string with regular expression, and replace the string -> delete https://
   param = domain[0].replace(/^https?:\/\//i, "");
 
   //3.Validate the url
@@ -48,18 +62,12 @@ app.post('/api/shorturl', (req,res) => {
       //3a.If url is valid -> generate short url
       short = Math.ceil(Math.random(10));
       dict = {original_url : input, short_url : short};
-
-      //4.Save dictionary to files.json
-      //4a.Convert JavaScript object into JSON string
-      const dict_json = JSON.stringify(dict);
-      //4b.Save data to file
-      fs.writeFileSync("./public/data.json", dict_json);
-      console.log(dict_json);
-
-      return res.json(dict);
+      dataManagement("save data", dict);
+      return res.json({"original_url":"https://github.com/","short_url":1});
     }
   });
 });
+
 
 app.get(`/api/shorturl/:shorturl`, (req,res) => {
   url = req.params.shorturl;
