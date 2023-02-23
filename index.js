@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const dns = require('dns');
+const fs = require('fs');
 const app = express();
 
 // Basic Configuration
@@ -27,6 +28,10 @@ app.post('/api/shorturl', (req,res) => {
   
   //2.Post url from user input
   input = req.body.url;
+  if (input === null || input === '') { 
+    return res.json({ error: 'invalid url' }); 
+  }
+  
   //2a.matches a string with regular expression => return array
   //   url should contains : http:// or https://
   domain = input.match(/^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/igm);
@@ -37,12 +42,20 @@ app.post('/api/shorturl', (req,res) => {
   dns.lookup(param, (err, address)=>{
     if (err) {
       //3a.If url is not valid -> respond error
-      return res.json({ error: 'invalid url' }); 
+      return res.json({ error: 'invalid url' });
     }
     else {
       //3a.If url is valid -> generate short url
       short = Math.ceil(Math.random(10));
       dict = {original_url : input, short_url : short};
+
+      //4.Save dictionary to files.json
+      //4a.Convert JavaScript object into JSON string
+      const dict_json = JSON.stringify(dict);
+      //4b.Save data to file
+      fs.writeFileSync("./public/data.json", dict_json);
+      console.log(dict_json);
+
       return res.json(dict);
     }
   });
@@ -50,10 +63,11 @@ app.post('/api/shorturl', (req,res) => {
 
 app.get(`/api/shorturl/:shorturl`, (req,res) => {
   url = req.params.shorturl;
-  if (url == '') {
+  if (url === '' || url === null) {
+    res.json({});
   }
   else {
-    console.log(url);
+    console.log(null);
     res.json({});
     // res.redirect(dict.input);  
   }
@@ -70,14 +84,3 @@ app.get('/api/hello', function(req, res) {
 app.listen(port, function() {
   console.log(`Listening on port ${port}`);
 });
-
-
-// function testDict() {
-//   let dict = {name : '', age : 20};
-//   dict.name = "Angela Yu";
-//   dict.age  = 35;
-//   console.log(`Name : ${dict.name}`);
-//   console.log(`Age  : ${dict.age}`);
-// }
-
-// testDict();
