@@ -31,7 +31,7 @@ function dataManagement(action, input) {
   }
 
   //read file
-  const file = fs.readFileSync(filePath);
+  let file = fs.readFileSync(filePath);
   if (action == 'save data' && input != null) {
       //check if file is empty
     if (file.length == 0) {
@@ -46,7 +46,7 @@ function dataManagement(action, input) {
     }
   }
   else if (action == 'load data' && input == null) {
-    if (file.length == 0) { alert('No data saved'); return; }
+    if (file.length == 0) { return "no data"; }
     else {
       let dataArray = JSON.parse(file);
       return dataArray;
@@ -56,12 +56,15 @@ function dataManagement(action, input) {
 
 //2.function for random Math
 function gen_shorturl() {
-  let Alldata      = dataManagement('load data');
-  let short = Math.ceil(Math.random(10));
-  Alldata.forEach(d => {
-    if ( short == d.short_url ) { gen_shorturl(); }
-  });
-  return short;
+  let Alldata = dataManagement('load data');
+  let short   = Math.ceil(Math.random());
+  if (Alldata == 'no data') { return short; }
+  else {
+    Alldata.forEach(d => {
+      if ( short == d.short_url ) { gen_shorturl(); }
+    });
+    return short; 
+  }
 }
 
 //3.middleware to handle user url input
