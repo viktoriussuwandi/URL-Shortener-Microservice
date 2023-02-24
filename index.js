@@ -21,64 +21,94 @@ app.get('/', function(req, res) {
 /*-----------------------------------------------------------------------------------------*/
 /*---------------------------------------MY CODE-------------------------------------------*/
 /*-----------------------------------------------------------------------------------------*/
-//1.Create function for File data.json
-function dataManagement(action, input) {
-  if (action == 'save data' && input) {
-      //1a.Convert JavaScript object into JSON string
-      const dict_json = JSON.stringify(input);
-      //1b.Save data to file
-      fs.writeFileSync("./public/data.json", dict_json);
-      console.log(dict_json);
-    return dict_json
-  } else if (action == 'load data' && input == null) {
-    data = {};
-    return data;
-  } else { return null; } 
-};
 
+//1.function for File data.json
+function dataManagement(action, input) {
+  let filePath = './public/data.json';
+  //check if file exist -> create new file if not exist
+  if (!fs.existsSync(filePath)) {
+    fs.closeSync(fs.openSync(filePath, 'w'));
+  }
+
+  //read file
+  const file = fs.readFileSync(filePath);
+  if (action == 'save data' && input != null) {
+      //check if file is empty
+    if (file.length == 0) {
+      //add data to json file
+      fs.writeFileSync(filePath, JSON.stringify([input], null, 2));
+    } else {
+      //append input to data.json file
+      let data = JSON.parse(file.toString());
+      //add input element to existing data json object
+      data.push(input);
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    }
+  }
+  else if (action == 'load data' && input == null) {
+    if (file.length == 0) { alert('No data saved'); return; }
+    else {
+      let dataArray = JSON.parse(file);
+      return dataArray;
+    }
+  }
+}
+
+//2.function for random Math
+function gen_shorturl() {
+  let Alldata      = dataManagement('load data');
+  let short = Math.ceil(Math.random(10));
+  Alldata.forEach(d => {
+    if ( short == d.short_url ) { gen_shorturl(); }
+  });
+  return short;
+}
+
+//3.middleware to handle user url input
 app.post('/api/shorturl', (req,res) => {
-  //2.Create variable needs
+  //Create variable needs
   let input = '', domain = '', param = '', short = 0;
   
-  //2a.Post url from user input
+  //Post url from user input
   input = req.body.url;
   if (input === null || input === '') { 
     return res.json({ error: 'invalid url' }); 
   }
   
-  //2b.matches a string with regular expression => return array
-  //   url should contains : http:// or https://
+  //matches a string with regular expr => return array
+  //url should contains : http:// or https://
   domain = input.match(/^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/igm);
-  //2c.search a string with regular expression, and replace the string -> delete https://
+  //search a string with regular expr, and replace the string -> delete https://
   param = domain[0].replace(/^https?:\/\//i, "");
 
-  //3.Validate the url
-  dns.lookup(param, (err, address)=>{
+  //Validate the url
+  dns.lookup(param, (err, url_Ip) => {
     if (err) {
-      //3a.If url is not valid -> respond error
+      //If url is not valid -> respond error
+      console.log(url_Ip);
       return res.json({ error: 'invalid url' });
     }
     else {
-      //3a.If url is valid -> generate short url
-      short = Math.ceil(Math.random(10));
+      //If url is valid -> generate short url
+      short = gen_shorturl();
       dict = {original_url : input, short_url : short};
       dataManagement("save data", dict);
-      return res.json({"original_url":"https://github.com/","short_url":1});
+      return res.json(dict);
     }
   });
 });
 
-
-app.get(`/api/shorturl/:shorturl`, (req,res) => {
-  url = req.params.shorturl;
-  if (url === '' || url === null) {
-    res.json({});
-  }
-  else {
-    console.log(null);
-    res.json({});
-    // res.redirect(dict.input);  
-  }
+//4.middleware to handle existing short url
+app.get('/api/shorturl/:shorturl', (req,res) => {
+  let input = req.params.shorturl;
+  Alldata      = dataManagement('load data');
+  let findData = {};
+  Alldata.forEach(d => {
+    if ( input == d.short_url ) { console.log(d); }
+  });
+    
+  res.json({type : typeof data, data : Alldata});
+  // res.redirect(dict.input);
   
 });
 
