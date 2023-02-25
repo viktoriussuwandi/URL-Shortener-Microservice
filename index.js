@@ -128,13 +128,12 @@ app.get('/api/shorturl/:shorturl', (req,res) => {
   let check_short = shortExist.includes(input);
   if (check_short && all_Data != undefined) {
     data_found = all_Data[shortExist.indexOf(input)];
-    res.json({data : 'Data found!!', short : input, existing : shortExist});
-    res.redirect(data_found);
+    // res.json({data : data_found, short : input, existing : shortExist});
+    res.redirect(data_found.original_url);
   }
   else {
     res.json({data : 'No matching data', short : input, existing : shortExist});
   }
-  // res.redirect(dict.input);
 });
 
 /*=========================================================================================*/
