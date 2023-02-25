@@ -1,6 +1,30 @@
 [
   {
+    "original_url": "https://www.w3schools.com/",
+    "short_url": 715
+  },
+  {
     "original_url": "https://github.com/",
-    "short_url": 1
+    "short_url": 299
+  },
+  {
+    "original_url": "https://www.freecodecamp.org/",
+    "short_url": 1982
+  },
+  {
+    "original_url": "https://www.wikipedia.org/",
+    "short_url": 2374
+  },
+  {
+    "original_url": "https://www.tutorialrepublic.com/",
+    "short_url": 220
+  },
+  {
+    "original_url": "https://www.google.com/",
+    "short_url": 4181
+  },
+  {
+    "original_url": "https://www.tutorialspoint.com/",
+    "short_url": 2745
   }
 ]

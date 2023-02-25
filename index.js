@@ -22,7 +22,7 @@ app.get('/', function(req, res) {
 /*---------------------------------------MY CODE-------------------------------------------*/
 /*-----------------------------------------------------------------------------------------*/
 
-//1.function for File data.json
+//1.function to manage local file storage (File data.json)
 function dataManagement(action, input) {
   let filePath = './public/data.json';
   //check if file exist -> create new file if not exist
@@ -30,23 +30,33 @@ function dataManagement(action, input) {
     fs.closeSync(fs.openSync(filePath, 'w'));
   }
 
-  //read file
+  //read file data.json
   let file = fs.readFileSync(filePath);
+  
+  //screnario for save input into data
   if (action == 'save data' && input != null) {
       //check if file is empty
     if (file.length == 0) {
-      //add data to json file
+      //add new data to json file
       fs.writeFileSync(filePath, JSON.stringify([input], null, 2));
     } else {
       //append input to data.json file
       let data = JSON.parse(file.toString());
-      //add input element to existing data json object
-      data.push(input);
-      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      //check if input.original_url already exist
+      let inputExist = [];
+      inputExist  = data.map(d => d.original_url);
+      let check_input = inputExist.includes(input.original_url);     
+      if (check_input === false) {
+        //add input element to existing data json object
+        data.push(input);
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      }
     }
   }
+
+  //screnario for load the data
   else if (action == 'load data' && input == null) {
-    if (file.length == 0) { return "no data"; }
+    if (file.length == 0) { return; }
     else {
       let dataArray = JSON.parse(file);
       return dataArray;
@@ -54,17 +64,24 @@ function dataManagement(action, input) {
   }
 }
 
-//2.function for random Math
+//2.function for random short_url (using Math.random())
 function gen_shorturl() {
-  let Alldata = dataManagement('load data');
-  let short   = Math.ceil(Math.random());
-  if (Alldata == 'no data') { return short; }
+  let all_Data   = dataManagement('load data');
+  // generate random number between 1 to data_length*1000
+  let min = 1; let max = 1000; 
+  if ( all_Data != undefined && all_Data.length > 0 ) { max = all_Data.length*1000 }
+  else { max = 1000; }
+  let short = Math.ceil(Math.random()* (max - min + 1) + min);
+  
+  //get all existing short url
+  if (all_Data === undefined) { return short; }
   else {
-    Alldata.forEach(d => {
-      if ( short == d.short_url ) { gen_shorturl(); }
-    });
-    return short; 
+    //check if short url already exist
+    let shortExist  = []; shortExist = all_Data.map(d => d.short_url);
+    let check_short = shortExist.includes(short);
+    if ( check_short ) {gen_shorturl(); } else { return short; }
   }
+  
 }
 
 //3.middleware to handle user url input
@@ -103,16 +120,21 @@ app.post('/api/shorturl', (req,res) => {
 
 //4.middleware to handle existing short url
 app.get('/api/shorturl/:shorturl', (req,res) => {
-  let input = req.params.shorturl;
-  Alldata      = dataManagement('load data');
-  let findData = {};
-  Alldata.forEach(d => {
-    if ( input == d.short_url ) { console.log(d); }
-  });
-    
-  res.json({type : typeof data, data : Alldata});
-  // res.redirect(dict.input);
+  let input    = Number(req.params.shorturl);
+  let all_Data = dataManagement('load data');
   
+  //check if short url already exist
+  let shortExist  = []; shortExist = all_Data.map(d => d.short_url);
+  let check_short = shortExist.includes(input);
+  if (check_short && all_Data != undefined) {
+    data_found = all_Data[shortExist.indexOf(input)];
+    res.json({data : 'Data found!!', short : input, existing : shortExist});
+    res.redirect(data_found);
+  }
+  else {
+    res.json({data : 'No matching data', short : input, existing : shortExist});
+  }
+  // res.redirect(dict.input);
 });
 
 /*=========================================================================================*/
