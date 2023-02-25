@@ -77,7 +77,7 @@ function gen_shorturl() {
   if (all_Data === undefined) { return short; }
   else {
     //check if short url already exist
-    let shortExist  = []; shortExist = all_Data.map(d => d.short_url);
+    let shortExist  = all_Data.map(d => d.short_url);
     let check_short = shortExist.includes(short);
     if ( check_short ) {gen_shorturl(); } else { return short; }
   }
@@ -124,7 +124,7 @@ app.get('/api/shorturl/:shorturl', (req,res) => {
   let all_Data = dataManagement('load data');
   
   //check if short url already exist
-  let shortExist  = []; shortExist = all_Data.map(d => d.short_url);
+  let shortExist  = all_Data.map(d => d.short_url);
   let check_short = shortExist.includes(input);
   if (check_short && all_Data != undefined) {
     data_found = all_Data[shortExist.indexOf(input)];
