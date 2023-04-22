@@ -1,6 +1,8 @@
 # URL Shortener Microservice
 #### Solution running on : [https://replit.com/@ViktoriusSuwand/URL-Shortener-Microservice-Project-6](https://replit.com/@ViktoriusSuwand/URL-Shortener-Microservice-Project-6)
 
+#### Documentation can be found on : [https://github.com/viktoriussuwandi/URL-Shortener-Microservice](https://github.com/viktoriussuwandi/URL-Shortener-Microservice)
+
 This is the result to complete the Exercise URL Shortener Microservice project.
 Instructions for building this project can be found at
 [https://www.freecodecamp.org/learn/back-end-development-and-apis/back-end-development-and-apis-projects/url-shortener-microservice](https://www.freecodecamp.org/learn/back-end-development-and-apis/back-end-development-and-apis-projects/url-shortener-microservice)
