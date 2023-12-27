@@ -1,5 +1,4 @@
 # URL Shortener Microservice
-#### Solution running on : [https://replit.com/@ViktoriusSuwand/URL-Shortener-Microservice-Project-6](https://replit.com/@ViktoriusSuwand/URL-Shortener-Microservice-Project-6)
 
 #### Documentation can be found on : [https://github.com/viktoriussuwandi/URL-Shortener-Microservice](https://github.com/viktoriussuwandi/URL-Shortener-Microservice)
 
